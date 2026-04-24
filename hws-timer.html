@@ -14,20 +14,17 @@ body {
 }
 h1 { font-size: 22px; font-weight: 400; margin-bottom: 6px; }
 .sub { font-size: 13px; color: #888; margin-bottom: 24px; }
-
 .box {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
+  background: #fff; border-radius: 14px;
+  padding: 20px; margin-bottom: 16px;
 }
 .row { display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
 .row:last-child { border-bottom: none; }
 .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.rt { font-size: 12px; font-weight: 600; min-width: 32px; }
+.rt { font-size: 12px; font-weight: 600; min-width: 36px; }
 .rd { font-size: 12px; color: #888; }
 
-button {
+.btn {
   display: block; width: 100%; padding: 18px;
   background: #1A1916; color: #fff;
   border: none; border-radius: 12px;
@@ -35,29 +32,27 @@ button {
   cursor: pointer; margin-bottom: 12px;
   -webkit-appearance: none;
 }
-button.sec {
-  background: #fff; color: #1A1916;
-  border: 1px solid #ddd;
-  margin-bottom: 0;
-}
-button:disabled { opacity: 0.4; }
+.btn.sec { background: #fff; color: #1A1916; border: 1px solid #ddd; }
+.btn.test { background: #1D9E75; margin-bottom: 16px; }
+.btn:disabled { opacity: 0.4; }
+
+#audio-gate { text-align: center; padding: 10px 0 4px; }
+#audio-gate p { font-size: 13px; color: #888; margin-bottom: 12px; line-height: 1.5; }
+#audio-status { font-size: 12px; color: #aaa; margin-bottom: 16px; }
 
 #run { display: none; }
 #phase { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: 12px; }
 #clock { font-size: 96px; font-weight: 200; line-height: 1; margin-bottom: 16px; }
-.bar-bg { background: #e8e5e0; border-radius: 3px; height: 5px; margin-bottom: 6px; overflow: hidden; }
-#bar { height: 5px; background: #1D9E75; width: 0; border-radius: 3px; }
-.marks { display: flex; justify-content: space-around; margin-bottom: 20px; }
-.mark { font-size: 11px; color: #ccc; }
-.mark.on { color: #888; }
-#msg { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 16px; color: #1D9E75; }
+.bar-bg { background: #e8e5e0; border-radius: 3px; height: 5px; margin-bottom: 20px; overflow: hidden; }
+#bar { height: 5px; background: #1D9E75; width: 0; border-radius: 3px; transition: width 0.8s linear; }
+#msg { font-size: 14px; font-weight: 600; min-height: 22px; margin-bottom: 12px; }
+#info { font-size: 12px; color: #aaa; margin-bottom: 20px; }
 .dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
 .dd { width: 10px; height: 10px; border-radius: 50%; background: #ddd; }
 .dd.cur { background: #1D9E75; transform: scale(1.3); }
 .dd.old { background: #999; }
 .btns { display: flex; gap: 10px; }
-.btns button { margin: 0; }
-#info { font-size: 12px; color: #aaa; margin-bottom: 16px; }
+.btns .btn { margin: 0; }
 </style>
 </head>
 <body>
@@ -66,58 +61,54 @@ button:disabled { opacity: 0.4; }
   <h1>HWS-Timer</h1>
   <p class="sub">80 s Übung · 10 s Pause · 4 Durchgänge</p>
 
-  <div class="box">
-    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">−10 s</span><span class="rd">Vorlauf (Pieptöne)</span></div>
-    <div class="row"><span class="dot" style="background:#1D9E75"></span><span class="rt">0 s</span><span class="rd">Startsignal (3 Töne aufsteigend)</span></div>
-    <div class="row"><span class="dot" style="background:#378ADD"></span><span class="rt">30 s</span><span class="rd">Wechselsignal (einzelner Ton) + Anzählen vorher</span></div>
-    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">40 + 50 s</span><span class="rd">Leiser Einzelton</span></div>
-    <div class="row"><span class="dot" style="background:#BA7517"></span><span class="rt">60 s</span><span class="rd">Wechselsignal (einzelner Ton) + Anzählen vorher</span></div>
-    <div class="row"><span class="dot" style="background:#D85A30"></span><span class="rt">80 s</span><span class="rd">Schlusston (absteigend) + Anzählen vorher</span></div>
-    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">+10 s</span><span class="rd">Wechselpause, dann nächster Durchgang</span></div>
+  <div class="box" id="audio-gate">
+    <p>Tippe zuerst auf „Ton testen" um Audio auf dem iPad zu aktivieren.</p>
+    <button class="btn test" onclick="testAudio()">🔊 Ton testen</button>
+    <div id="audio-status">Noch nicht getestet</div>
   </div>
 
-  <button onclick="startTimer()">Timer starten</button>
+  <div class="box">
+    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">−10 s</span><span class="rd">Vorlauf (leise Pieptöne)</span></div>
+    <div class="row"><span class="dot" style="background:#1D9E75"></span><span class="rt">0 s</span><span class="rd">Startsignal (3 Töne aufsteigend)</span></div>
+    <div class="row"><span class="dot" style="background:#378ADD"></span><span class="rt">30 s</span><span class="rd">Anzählen + Wechselsignal</span></div>
+    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">40 + 50 s</span><span class="rd">Leiser Einzelton</span></div>
+    <div class="row"><span class="dot" style="background:#BA7517"></span><span class="rt">60 s</span><span class="rd">Anzählen + Wechselsignal</span></div>
+    <div class="row"><span class="dot" style="background:#D85A30"></span><span class="rt">80 s</span><span class="rd">Anzählen + Schlusston</span></div>
+    <div class="row"><span class="dot" style="background:#888"></span><span class="rt">+10 s</span><span class="rd">Wechselpause</span></div>
+  </div>
+
+  <button class="btn" onclick="startTimer()">Timer starten</button>
 </div>
 
 <div id="run">
   <div id="phase">Vorlauf</div>
   <div id="clock">10</div>
   <div class="bar-bg"><div id="bar"></div></div>
-  <div class="marks" id="marks" style="visibility:hidden">
-    <span class="mark" id="m30">30s</span>
-    <span class="mark" id="m60">60s</span>
-    <span class="mark" id="m80">80s</span>
-  </div>
   <div id="msg"></div>
   <div id="info">Gleich geht's los …</div>
   <div class="dots" id="dots"></div>
   <div class="btns">
-    <button class="sec" id="bpause" onclick="togglePause()" disabled>Pause</button>
-    <button class="sec" onclick="stopTimer()">Stop</button>
+    <button class="btn sec" id="bpause" onclick="togglePause()" disabled>Pause</button>
+    <button class="btn sec" onclick="stopTimer()">Stop</button>
   </div>
 </div>
 
 <script>
 var ac = null;
-var ticker = null;
-var elapsed = 0;
-var phase = '';
-var round = 1;
-var paused = false;
-var fired = {};
-var msgTimer = null;
-var TOTAL = 4;
-var EX = 80;
-var BRK = 10;
-var VORLAUF = 10;
-var vorlaufLeft = 0;
-var vorlaufTicker = null;
+var audioReady = false;
 
 function getAC() {
   if (!ac) {
-    try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+      document.getElementById('audio-status').textContent = 'Fehler: ' + e.message;
+      return null;
+    }
   }
-  if (ac && ac.state === 'suspended') { try { ac.resume(); } catch(e) {} }
+  if (ac.state === 'suspended') {
+    ac.resume();
+  }
   return ac;
 }
 
@@ -136,7 +127,23 @@ function beep(freq, delayS, durS, vol) {
     g.gain.exponentialRampToValueAtTime(0.001, t + durS);
     o.start(t);
     o.stop(t + durS + 0.05);
-  } catch(e) {}
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function testAudio() {
+  var ok = beep(660, 0, 0.15, 0.4);
+  if (ok) {
+    audioReady = true;
+    document.getElementById('audio-status').textContent = '✓ Ton aktiv — du solltest jetzt einen Piepton gehört haben';
+    document.getElementById('audio-status').style.color = '#1D9E75';
+    document.getElementById('audio-gate').style.background = '#f0fdf8';
+  } else {
+    document.getElementById('audio-status').textContent = '✗ Kein Ton — prüfe ob der Lautstärke-Regler aufgedreht ist';
+    document.getElementById('audio-status').style.color = '#D85A30';
+  }
 }
 
 function playStart()  { beep(440,0,0.12,0.3); beep(554,0.2,0.12,0.35); beep(660,0.4,0.2,0.4); }
@@ -148,21 +155,26 @@ function playC1()     { beep(580,0,0.07,0.15); }
 function playC2()     { beep(610,0,0.07,0.22); }
 function playC3()     { beep(640,0,0.09,0.32); }
 
+var TOTAL = 4, EX = 80, BRK = 10, VORLAUF = 10;
+var ticker = null, vorlaufTicker = null;
+var elapsed = 0, phase = '', round = 1, paused = false, fired = {};
+var msgTimer = null;
+
 var EVENTS = {
-  27: function() { playC1(); showMsg('…','#378ADD'); },
+  27: function() { playC1(); showMsg('…', '#378ADD'); },
   28: function() { playC2(); },
   29: function() { playC3(); },
-  30: function() { playSwitch(); showMsg('30 s — Wechsel','#378ADD'); },
-  40: function() { playSoft(); showMsg('40 s','#aaa'); },
-  50: function() { playSoft(); showMsg('50 s','#aaa'); },
-  57: function() { playC1(); showMsg('…','#BA7517'); },
+  30: function() { playSwitch(); showMsg('30 s — Wechsel', '#378ADD'); },
+  40: function() { playSoft(); showMsg('40 s', '#aaa'); },
+  50: function() { playSoft(); showMsg('50 s', '#aaa'); },
+  57: function() { playC1(); showMsg('…', '#BA7517'); },
   58: function() { playC2(); },
   59: function() { playC3(); },
-  60: function() { playSwitch(); showMsg('60 s — Wechsel','#BA7517'); },
-  77: function() { playC1(); showMsg('…','#D85A30'); },
+  60: function() { playSwitch(); showMsg('60 s — Wechsel', '#BA7517'); },
+  77: function() { playC1(); showMsg('…', '#D85A30'); },
   78: function() { playC2(); },
   79: function() { playC3(); },
-  80: function() { playEnd(); showMsg('Fertig!','#D85A30'); }
+  80: function() { playEnd(); showMsg('Fertig!', '#D85A30'); }
 };
 
 function showMsg(txt, col) {
@@ -174,7 +186,10 @@ function showMsg(txt, col) {
 }
 
 function startTimer() {
-  getAC(); // unlock audio context on user gesture
+  if (!audioReady) {
+    var ok = beep(440, 0, 0.1, 0.2);
+    if (ok) audioReady = true;
+  }
   document.getElementById('start').style.display = 'none';
   document.getElementById('run').style.display = 'block';
   buildDots();
@@ -182,32 +197,29 @@ function startTimer() {
 }
 
 function runVorlauf() {
-  vorlaufLeft = VORLAUF;
-  setClock(vorlaufLeft);
+  var cd = VORLAUF;
+  setClock(cd);
   setPhase('Vorlauf');
   setInfo('Gleich geht\'s los …');
   setBar(0, '#888');
-  showMarks(false);
   document.getElementById('bpause').disabled = true;
 
   vorlaufTicker = setInterval(function() {
-    vorlaufLeft--;
+    cd--;
     playPrep();
-    if (vorlaufLeft <= 0) {
+    if (cd <= 0) {
       clearInterval(vorlaufTicker);
-      document.getElementById('bpause').disabled = false;
-      elapsed = 0;
-      phase = 'ex';
-      paused = false;
-      fired = {};
-      round = 1;
+      elapsed = 0; phase = 'ex'; paused = false; fired = {}; round = 1;
       buildDots();
+      document.getElementById('bpause').disabled = false;
+      document.getElementById('bar').style.transition = 'width 0.8s linear';
       updateDisplay();
       playStart();
       ticker = setInterval(tick, 1000);
     } else {
-      setClock(vorlaufLeft);
-      setBar(Math.round((VORLAUF - vorlaufLeft) / VORLAUF * 100), '#888');
+      setClock(cd);
+      document.getElementById('bar').style.transition = 'none';
+      setBar(Math.round((VORLAUF - cd) / VORLAUF * 100), '#888');
     }
   }, 1000);
 }
@@ -215,35 +227,19 @@ function runVorlauf() {
 function tick() {
   if (paused) return;
   elapsed++;
-
   if (phase === 'ex') {
-    if (EVENTS[elapsed] && !fired[elapsed]) {
-      fired[elapsed] = true;
-      EVENTS[elapsed]();
-    }
+    if (EVENTS[elapsed] && !fired[elapsed]) { fired[elapsed] = true; EVENTS[elapsed](); }
     updateDisplay();
     if (elapsed >= EX) {
-      if (round >= TOTAL) {
-        clearInterval(ticker);
-        doFinish();
-        return;
-      }
-      phase = 'brk';
-      elapsed = 0;
-      fired = {};
+      if (round >= TOTAL) { clearInterval(ticker); doFinish(); return; }
+      phase = 'brk'; elapsed = 0; fired = {};
       updateDisplay();
     }
-
   } else {
     updateDisplay();
     if (elapsed >= BRK) {
-      round++;
-      phase = 'ex';
-      elapsed = 0;
-      fired = {};
-      buildDots();
-      playStart();
-      updateDisplay();
+      round++; phase = 'ex'; elapsed = 0; fired = {};
+      buildDots(); playStart(); updateDisplay();
     }
   }
 }
@@ -258,12 +254,6 @@ function updateDisplay() {
   setBar(pct, isEx ? '#1D9E75' : '#888');
   setPhase(isEx ? 'Übung' : 'Wechselpause');
   setInfo('Durchgang ' + Math.min(round, TOTAL) + ' von ' + TOTAL);
-  showMarks(isEx);
-  if (isEx) {
-    mark('m30', elapsed >= 30);
-    mark('m60', elapsed >= 60);
-    mark('m80', elapsed >= 80);
-  }
   updateDots();
 }
 
@@ -274,10 +264,9 @@ function doFinish() {
   setInfo('Alle 4 Durchgänge abgeschlossen');
   showMsg('Sehr gut!', '#1D9E75');
   document.getElementById('bpause').disabled = true;
-  showMarks(false);
   for (var i = 1; i <= TOTAL; i++) {
     var d = document.getElementById('d' + i);
-    if (d) { d.className = 'dd old'; }
+    if (d) d.className = 'dd old';
   }
 }
 
@@ -287,42 +276,30 @@ function setInfo(v)  { document.getElementById('info').textContent = v; }
 function setBar(pct, col) {
   var el = document.getElementById('bar');
   el.style.width = pct + '%';
-  el.style.background = col;
-}
-function showMarks(v) { document.getElementById('marks').style.visibility = v ? 'visible' : 'hidden'; }
-function mark(id, on) {
-  var el = document.getElementById(id);
-  if (el) el.className = 'mark' + (on ? ' on' : '');
+  if (col) el.style.background = col;
 }
 
 function buildDots() {
-  var c = document.getElementById('dots');
-  c.innerHTML = '';
+  var c = document.getElementById('dots'); c.innerHTML = '';
   for (var i = 1; i <= TOTAL; i++) {
     var d = document.createElement('div');
     d.id = 'd' + i;
-    d.className = 'dd' + (i === round ? ' cur' : (i < round ? ' old' : ''));
+    d.className = 'dd' + (i === round ? ' cur' : i < round ? ' old' : '');
     c.appendChild(d);
   }
 }
 function updateDots() {
   for (var i = 1; i <= TOTAL; i++) {
-    var d = document.getElementById('d' + i);
-    if (!d) continue;
-    if (i < round) d.className = 'dd old';
-    else if (i === round) d.className = 'dd cur';
-    else d.className = 'dd';
+    var d = document.getElementById('d' + i); if (!d) continue;
+    d.className = 'dd' + (i < round ? ' old' : i === round ? ' cur' : '');
   }
 }
-
 function togglePause() {
   paused = !paused;
   document.getElementById('bpause').textContent = paused ? 'Weiter' : 'Pause';
 }
-
 function stopTimer() {
-  clearInterval(ticker);
-  clearInterval(vorlaufTicker);
+  clearInterval(ticker); clearInterval(vorlaufTicker);
   paused = false;
   document.getElementById('run').style.display = 'none';
   document.getElementById('start').style.display = 'block';
