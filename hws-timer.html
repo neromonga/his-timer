@@ -159,6 +159,21 @@ var TOTAL = 4, EX = 80, BRK = 10, VORLAUF = 10;
 var ticker = null, vorlaufTicker = null;
 var elapsed = 0, phase = '', round = 1, paused = false, fired = {};
 var msgTimer = null;
+var wakeLock = null;
+
+function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(function(lock) {
+      wakeLock = lock;
+    }).catch(function() {});
+  }
+}
+function releaseWakeLock() {
+  if (wakeLock) { try { wakeLock.release(); } catch(e) {} wakeLock = null; }
+}
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && phase !== '') requestWakeLock();
+});
 
 var EVENTS = {
   27: function() { playC1(); showMsg('…', '#378ADD'); },
@@ -193,6 +208,7 @@ function startTimer() {
   document.getElementById('start').style.display = 'none';
   document.getElementById('run').style.display = 'block';
   buildDots();
+  requestWakeLock();
   runVorlauf();
 }
 
@@ -258,6 +274,7 @@ function updateDisplay() {
 }
 
 function doFinish() {
+  releaseWakeLock();
   setPhase('Fertig!');
   setClock('✓');
   setBar(100, '#1D9E75');
@@ -300,7 +317,8 @@ function togglePause() {
 }
 function stopTimer() {
   clearInterval(ticker); clearInterval(vorlaufTicker);
-  paused = false;
+  releaseWakeLock();
+  paused = false; phase = '';
   document.getElementById('run').style.display = 'none';
   document.getElementById('start').style.display = 'block';
   document.getElementById('bpause').disabled = false;
